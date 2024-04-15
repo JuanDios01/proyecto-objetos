@@ -1,9 +1,15 @@
 class Equipo {
-    constructor(nombre, precioVenta, precioAlquiler, cantidad) {
-        this.nombre = nombre;
-        this.precioVenta = precioVenta;
-        this.precioAlquiler = precioAlquiler;
+    constructor(nombre, cantidad) {
+        this._nombre = nombre;
         this._cantidad = cantidad;
+    }
+
+    get nombre() {
+        return this._nombre;
+    }
+
+    set nombre(nuevoNombre) {
+        this._nombre = nuevoNombre;
     }
 
     get cantidad() {
@@ -12,25 +18,26 @@ class Equipo {
 
     set cantidad(nuevaCantidad) {
         if (nuevaCantidad < 0) {
-            throw new Error('La cantidad no puede ser negativa');
+            console.info('La cantidad no puede ser negativa');
+            return;
         }
         this._cantidad = nuevaCantidad;
     }
 
     vender(cantidad) {
         if (this._cantidad < cantidad) {
-            console.info (`No hay suficientes ${this.nombre} en stock para vender.`);
+            return "No hay suficientes equipos en stock para vender.";
         }
         this._cantidad -= cantidad;
-        return this.precioVenta * cantidad;
+        return "Venta exitosa.";
     }
 
     alquilar(cantidad) {
         if (this._cantidad < cantidad) {
-            console.info (`No hay suficientes ${this.nombre} en stock para alquilar.`);
+            return "No hay suficientes equipos en stock para alquilar.";
         }
         this._cantidad -= cantidad;
-        return this.precioAlquiler * cantidad;
+        return "Alquiler exitoso.";
     }
 }
 
@@ -49,50 +56,42 @@ class Almacen {
         let equipo = this.equipos.find(equipo => equipo.nombre === nombre);
         if (!equipo) {
             console.info (`El equipo ${nombre} no se encuentra en el almacén.`);
+            return;
         }
-        let venta = equipo.vender(cantidad);
-        if (typeof venta === 'string') {
-            return venta;
+        let mensajeVenta = equipo.vender(cantidad);
+        console.log(mensajeVenta);
+        if (mensajeVenta === "Venta exitosa.") {
+            this.totalVentas += cantidad;
         }
-        this.totalVentas += venta;
-        console.info (`Se vendieron ${cantidad} ${nombre}. Total de ventas: ${this.totalVentas}`);
     }
 
     alquilarEquipo(nombre, cantidad) {
         let equipo = this.equipos.find(equipo => equipo.nombre === nombre);
         if (!equipo) {
             console.info (`El equipo ${nombre} no se encuentra en el almacén.`);
+            return;
         }
-        let alquiler = equipo.alquilar(cantidad);
-        if (typeof alquiler === 'string') {
-            return alquiler;
+        let mensajeAlquiler = equipo.alquilar(cantidad);
+        console.log(mensajeAlquiler);
+        if (mensajeAlquiler === "Alquiler exitoso.") {
+            this.totalAlquileres += cantidad;
         }
-        this.totalAlquileres += alquiler;
-        console.info (`Se alquilaron ${cantidad} ${nombre}. Total de alquileres: ${this.totalAlquileres}`);
+    }
+
+    mostrarIngresos() {
+        console.log(`Total de ventas: ${this.totalVentas}`);
+        console.log(`Total de alquileres: ${this.totalAlquileres}`);
     }
 }
 
-let computadora1 = new Equipo("Computadora HP", 1000, 100, 10);
-let computadora2 = new Equipo("Computadora Dell", 1200, 120, 8);
-let computadora3 = new Equipo("Computadora Lenovo", 900, 90, 12);
+let computadora1 = new Equipo("Computadora HP", 10);
+let computadora2 = new Equipo("Computadora Dell", 8);
 
 let almacen = new Almacen();
 almacen.agregarEquipo(computadora1);
 almacen.agregarEquipo(computadora2);
-almacen.agregarEquipo(computadora3);
 
-console.log("Antes de vender o alquilar:");
-almacen.equipos.forEach(equipo => {
-    console.log (`Nombre: ${equipo.nombre}, Cantidad: ${equipo.cantidad}`);
-});
+almacen.venderEquipo("Computadora HP", 3);
+almacen.alquilarEquipo("Computadora Dell", 2);
 
-let venta = almacen.venderEquipo("Computadora HP", 3);
-console.log(venta);
-
-let alquiler = almacen.alquilarEquipo("Computadora Dell", 2);
-console.log(alquiler);
-
-console.log("Después de vender y alquilar:");
-almacen.equipos.forEach(equipo => {
-    console.log (`Nombre: ${equipo.nombre}, Cantidad: ${equipo.cantidad}`);
-});
+almacen.mostrarIngresos();
